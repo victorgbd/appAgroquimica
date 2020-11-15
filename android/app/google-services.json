@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1073239782427",
+    "firebase_url": "https://agroquimica-app.firebaseio.com",
+    "project_id": "agroquimica-app",
+    "storage_bucket": "agroquimica-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1073239782427:android:ce8365f26470714c2234be",
+        "android_client_info": {
+          "package_name": "com.example.agroquimica"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1073239782427-5du506qg7dqq9s6bd3uvakjq8tp49rtb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbdNh7egkELnAOaPfYAsRjuYvUNZavZSs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1073239782427-5du506qg7dqq9s6bd3uvakjq8tp49rtb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

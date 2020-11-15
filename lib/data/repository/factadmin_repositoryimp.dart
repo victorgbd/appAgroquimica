@@ -1,10 +1,15 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:path/path.dart';
 import 'package:agroquimica/data/entities/detallefact_entities.dart';
 import 'package:agroquimica/data/entities/direccion/direccion_entities.dart';
+import 'package:agroquimica/data/entities/image_entities.dart';
 import 'package:agroquimica/data/entities/productos_entities.dart';
 import 'package:agroquimica/data/entities/user_entities.dart';
 import 'package:agroquimica/data/entities/usere_entities.dart';
 import 'package:agroquimica/data/models/detallefact_model.dart';
 import 'package:agroquimica/data/models/direccion/direccion_model.dart';
+import 'package:agroquimica/data/models/imagesres_model.dart';
 import 'package:agroquimica/data/models/produtos_model.dart';
 import 'package:agroquimica/data/models/user_model.dart';
 import 'package:agroquimica/data/models/usere_model.dart';
@@ -15,13 +20,14 @@ import 'package:http/http.dart' as http;
 import 'package:agroquimica/data/entities/factura_entities.dart';
 import 'package:agroquimica/data/models/factura_model.dart';
 import 'package:agroquimica/data/repository/factadmin_repository.dart';
+import 'package:http/http.dart';
 
 class FacturaAdminRepositoryimp implements IFacturaAdminRepository {
   final http.Client httpClient;
   FacturaAdminRepositoryimp({
     @required this.httpClient,
   });
-  final _url = "https://7a129ad1feb1.ngrok.io";
+  final _url = "https://11ff11d56092.ngrok.io";
 
   // @override
   // Future<Either<Failure, FacturaEntities>> getFactura() {
@@ -273,6 +279,38 @@ class FacturaAdminRepositoryimp implements IFacturaAdminRepository {
     } catch (e) {
       return Left(
           const FactAdminFailure(message: "something was wrong on create"));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<ImageEntities>>> getImageResult(
+      File fileImage) async {
+    try {
+      final stream = http.ByteStream(fileImage.openRead());
+      stream.cast();
+      final length = await fileImage.length();
+
+      final uri = Uri.parse(_url + "/upload");
+
+      var request = MultipartRequest("POST", uri);
+
+      final multipartFile = http.MultipartFile(
+        'file',
+        stream,
+        length,
+        filename: basename(fileImage.path),
+      );
+
+      request.files.add(multipartFile);
+
+      StreamedResponse response = await request.send();
+      if (response.statusCode != 200)
+        return Left(const FactAdminFailure(message: "Conexion Fallida"));
+
+      var resp = await response.stream.transform(utf8.decoder).first;
+      return Right(imageModelFromJson(resp));
+    } catch (e) {
+      return Left(const FactAdminFailure(message: "Conexion Fallida"));
     }
   }
 }

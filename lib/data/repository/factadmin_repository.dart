@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:agroquimica/data/entities/detallefact_entities.dart';
 import 'package:agroquimica/data/entities/direccion/direccion_entities.dart';
+import 'package:agroquimica/data/entities/image_entities.dart';
 import 'package:agroquimica/data/entities/productos_entities.dart';
 import 'package:agroquimica/data/entities/user_entities.dart';
 import 'package:agroquimica/data/entities/usere_entities.dart';
@@ -7,7 +10,7 @@ import 'package:dartz/dartz.dart';
 import 'package:agroquimica/data/entities/factura_entities.dart';
 
 abstract class IFacturaAdminRepository {
-  //Future<Either<Failure, FacturaEntities>> getFactura();
+  Future<Either<Failure, List<ImageEntities>>> getImageResult(File fileImage);
   Future<Either<Failure, int>> createFactura(FacturaEntities factura);
   Future<Either<Failure, Unit>> createdetalleFactura(
       List<DetallefactEntities> factura);

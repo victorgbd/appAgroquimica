@@ -89,11 +89,11 @@ class LoginPageState extends State<LoginPage> {
                       final password = _passwordtextController.text;
                       bool flag = true;
                       flag = await context
-                          .bloc<AdminstatesCubit>()
+                          .read<AdminstatesCubit>()
                           .validateUser(user, password);
                       if (flag) {
                         context
-                            .bloc<AdminstatesCubit>()
+                            .read<AdminstatesCubit>()
                             .setUser(user, password);
                         Navigator.pushNamedAndRemoveUntil(
                             context, '/menu', (_) => false);

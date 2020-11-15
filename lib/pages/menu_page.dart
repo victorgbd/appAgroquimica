@@ -1,4 +1,5 @@
 import 'package:agroquimica/cubit/adminstates_cubit.dart';
+import 'package:agroquimica/pages/deteccion/deteccion_page.dart';
 import 'package:agroquimica/pages/ventas/ventas_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -84,7 +85,8 @@ class MenuPage extends StatelessWidget {
                     ],
                   ),
                   onTap: () {
-                    print("uy");
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => DeteccionPage()));
                   },
                 ),
               ),
@@ -139,12 +141,14 @@ class UserDrawer extends StatelessWidget {
       child: ListView(
         children: <Widget>[
           UserAccountsDrawerHeader(
-              accountName: Text(
-                  context.bloc<AdminstatesCubit>().userEEntities.nombre +
-                      " " +
-                      context.bloc<AdminstatesCubit>().userEEntities.apellido),
-              accountEmail:
-                  Text(context.bloc<AdminstatesCubit>().userEEntities.correo))
+            accountEmail: Text("ua"), accountName: Text("ua"),
+            // accountName: Text(
+            //     context.watch<AdminstatesCubit>().userEEntities.nombre +
+            //         " " +
+            //         context.watch<AdminstatesCubit>().userEEntities.apellido),
+            // accountEmail:
+            //     Text(context.watch<AdminstatesCubit>().userEEntities.correo))
+          )
         ],
       ),
     );

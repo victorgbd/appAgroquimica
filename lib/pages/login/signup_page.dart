@@ -29,7 +29,7 @@ class SignupPageState extends State<SignupPage> {
   List<DireccionEntities> pais = [];
   @override
   void initState() {
-    context.bloc<AdminstatesCubit>().getDireccionInit('');
+    context.read<AdminstatesCubit>().getDireccionInit('');
     super.initState();
   }
 
@@ -169,7 +169,7 @@ class SignupPageState extends State<SignupPage> {
                   }).toList(),
                   onChanged: (value) async {
                     final aux = await context
-                        .bloc<AdminstatesCubit>()
+                        .read<AdminstatesCubit>()
                         .getDireccion('?codpais=' + value.cod.toString());
                     setState(() {
                       this.codpais = value.cod.toString();
@@ -278,7 +278,7 @@ class SignupPageState extends State<SignupPage> {
                       final password = _passwordtextController.text;
                       bool flag = true;
                       flag = await context
-                          .bloc<AdminstatesCubit>()
+                          .read<AdminstatesCubit>()
                           .validateUsername(email);
                       if (flag) {
                         Scaffold.of(context).showSnackBar(SnackBar(
@@ -297,7 +297,8 @@ class SignupPageState extends State<SignupPage> {
                             direccion: _referenciatextController.text,
                             tipo: tiposel,
                             numeracion: _numeraciontextController.text,
-                            numerotelf: _numeroteltextController.text);
+                            numerotelf: _numeroteltextController.text,
+                            codcli: null);
                         await context
                             .bloc<AdminstatesCubit>()
                             .createUser(userEtity);

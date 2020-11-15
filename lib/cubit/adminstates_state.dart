@@ -63,3 +63,11 @@ class AdminstatesloadedProd extends AdminstatesState {
 }
 
 class Adminstatesloadedcarrito extends AdminstatesState {}
+
+class ImageStateLoaded extends AdminstatesState {
+  final List<ImageEntities> imageEntities;
+
+  ImageStateLoaded(this.imageEntities);
+}
+
+class ImageStateLoading extends AdminstatesState {}

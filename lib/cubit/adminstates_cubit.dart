@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:agroquimica/data/entities/direccion/direccion_entities.dart';
+import 'package:agroquimica/data/entities/image_entities.dart';
 import 'package:agroquimica/data/entities/productos_entities.dart';
 import 'package:agroquimica/data/entities/user_entities.dart';
 import 'package:agroquimica/data/entities/usere_entities.dart';
@@ -18,9 +20,12 @@ class AdminstatesCubit extends Cubit<AdminstatesState> {
   double totalfacturar = 0.0;
   UserEEntities userEEntities;
   final IFacturaAdminRepository facturaAdminRepository;
-  AdminstatesCubit(
-      this.facturaAdminRepository, this.carrito, this.userEEntities)
-      : super(AdminstatesInitial());
+
+  AdminstatesCubit({
+    this.facturaAdminRepository,
+    this.carrito,
+    this.userEEntities,
+  }) : super(AdminstatesInitial());
   // Future<void> getfactura() async {
   //   emit(AdminstatesLoadingFact());
   //   final failOrsucess = await this.facturaAdminRepository.getFactura();
@@ -129,8 +134,8 @@ class AdminstatesCubit extends Cubit<AdminstatesState> {
   }
 
   void addcarrito(ProductosEntities producto) {
-    emit(Adminstatesloadedcarrito());
     carrito.add(producto);
+    emit(Adminstatesloadedcarrito());
   }
 
   void setcantven(int index, int cantidad) {
@@ -156,7 +161,6 @@ class AdminstatesCubit extends Cubit<AdminstatesState> {
     return numerofactura;
   }
 
-  //si retorna 0 hay un error
   Future<void> createDetalleFactura(List<DetallefactEntities> factura) async {
     final failOrsucess =
         await this.facturaAdminRepository.createdetalleFactura(factura);
@@ -166,6 +170,20 @@ class AdminstatesCubit extends Cubit<AdminstatesState> {
       },
       (numfactura) {
         emit(AdminstatesCreated());
+      },
+    );
+  }
+
+  Future<void> getResult(File image) async {
+    emit(ImageStateLoading());
+    final failOrsucess =
+        await this.facturaAdminRepository.getImageResult(image);
+    failOrsucess.fold(
+      (failure) {
+        emit(AdminstatesError(message: failure.message));
+      },
+      (imageEntities) {
+        emit(ImageStateLoaded(imageEntities));
       },
     );
   }
