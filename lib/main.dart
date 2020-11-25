@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
           scaffoldBackgroundColor: Colors.white,
         ),
         home: WelcomePage(),
-        //home: MenuPage(),
+        // home: MenuPage(),
         routes: {
           "/menu": (_) => MenuPage(),
           "/welcome": (_) => WelcomePage(),

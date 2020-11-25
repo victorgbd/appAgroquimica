@@ -27,15 +27,6 @@ class AdminstatesCubit extends Cubit<AdminstatesState> {
     this.carrito,
     this.userEEntities,
   }) : super(AdminstatesInitial());
-  // Future<void> getfactura() async {
-  //   emit(AdminstatesLoadingFact());
-  //   final failOrsucess = await this.facturaAdminRepository.getFactura();
-  //   failOrsucess.fold(
-  //     (failure) => emit(AdminstatesError(message: failure.message)),
-  //     (facturaEntities) =>
-  //         emit(AdminstatesLoadFact(facturaEntities: facturaEntities)),
-  //   );
-  // }
 
   Future<void> setUser(String user, String password) async {
     final failureOrUnit =
