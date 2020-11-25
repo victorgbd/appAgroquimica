@@ -170,7 +170,7 @@ class AdminstatesCubit extends Cubit<AdminstatesState> {
         emit(AdminstatesError(message: failure.message));
       },
       (numfactura) {
-        emit(AdminstatesCreated());
+        emit(Adminstatesloadedcarrito());
       },
     );
   }

@@ -1,9 +1,12 @@
 import 'package:agroquimica/cubit/adminstates_cubit.dart';
 import 'package:agroquimica/data/entities/productos_entities.dart';
 import 'package:agroquimica/data/entities/recomendacion/recomendacion_entities.dart';
+import 'package:agroquimica/pages/ventas/ventas_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_counter/flutter_counter.dart';
+
+import '../menu_page.dart';
 
 class RecomendacionPage extends StatefulWidget {
   @override
@@ -32,6 +35,7 @@ class RecomendacionPageState extends State<RecomendacionPage> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
+          endDrawer: UserDrawer(),
           appBar: AppBar(
             title: Text("Recomendación de productos"),
           ),
@@ -297,6 +301,8 @@ class RecomendacionPageState extends State<RecomendacionPage> {
                             context
                                 .read<AdminstatesCubit>()
                                 .addcarritorec(plantas, recomendacion);
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => VentasPage()));
                           },
                           child: Text('Agregar al carrito'),
                           padding: EdgeInsets.symmetric(

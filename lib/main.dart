@@ -27,8 +27,8 @@ class MyApp extends StatelessWidget {
           secondaryHeaderColor: Color.fromARGB(255, 229, 80, 0),
           scaffoldBackgroundColor: Colors.white,
         ),
-        //home: WelcomePage(),
-        home: MenuPage(),
+        home: WelcomePage(),
+        //home: MenuPage(),
         routes: {
           "/menu": (_) => MenuPage(),
           "/welcome": (_) => WelcomePage(),

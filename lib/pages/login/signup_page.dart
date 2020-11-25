@@ -334,10 +334,10 @@ class SignupPageState extends State<SignupPage> {
                             numerotelf: _numeroteltextController.text,
                             codcli: '1');
                         await context
-                            .bloc<AdminstatesCubit>()
+                            .read<AdminstatesCubit>()
                             .createUser(userEtity);
                         context
-                            .bloc<AdminstatesCubit>()
+                            .read<AdminstatesCubit>()
                             .setUser(email, password);
                         Navigator.pushNamedAndRemoveUntil(
                             context, '/menu', (_) => false);

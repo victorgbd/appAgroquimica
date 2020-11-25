@@ -185,7 +185,6 @@ class DeteccionPageState extends State<DeteccionPage> {
                 state.imageEntities[0].enfermedad +
                 " " +
                 state.imageEntities[0].porc);
-            ;
           } else {
             return Stepper(
               type: StepperType.horizontal,
@@ -222,7 +221,7 @@ class DeteccionPageState extends State<DeteccionPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(40.0),
                         ),
-                        child: Text("Atras"),
+                        child: Text("Atrás"),
                         padding: EdgeInsets.symmetric(
                             horizontal: 44.0, vertical: 14.0),
                       ),
