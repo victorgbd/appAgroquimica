@@ -194,7 +194,7 @@ class ListaState extends State<Lista> {
             children: [
               SizedBox(),
               Text(
-                'Total:',
+                'Total',
                 style: TextStyle(
                   fontSize: 30.0,
                 ),
@@ -213,11 +213,16 @@ class ListaState extends State<Lista> {
                         offset: Offset(0, 3),
                       ),
                     ]),
-                child: Text(
-                  '$totalfact',
-                  style: TextStyle(
-                    fontSize: 30.0,
-                  ),
+                child: Row(
+                  children: [
+                    Icon(Icons.attach_money),
+                    Text(
+                      '$totalfact',
+                      style: TextStyle(
+                        fontSize: 30.0,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               RaisedButton(
