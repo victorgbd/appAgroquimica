@@ -39,7 +39,12 @@ class RecomendacionPageState extends State<RecomendacionPage> {
                 child: CircularProgressIndicator(),
               );
             } else if (state is AdminstateloadedRecomendacion) {
-              plantas = state.recomendacionesEntites;
+              plantas = state.recomendacionesEntites ?? [];
+              return RecomendacionForm(
+                plantas: plantas,
+              );
+            } else if (state is AdminstatesError) {
+              plantas = [];
               return RecomendacionForm(
                 plantas: plantas,
               );

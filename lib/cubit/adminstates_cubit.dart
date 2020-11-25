@@ -241,7 +241,7 @@ class AdminstatesCubit extends Cubit<AdminstatesState> {
     emit(AdminstateloadedRecomendacion(recomendacionesEntites: recomendacion));
   }
 
-  void addcarritodet(List<ProductosEntities> producto) {
+  Future<void> addcarritodet(List<ProductosEntities> producto) async {
     var flag = true;
     producto.forEach((elementi) {
       flag = true;
