@@ -232,7 +232,17 @@ class DeteccionStepperState extends State<DeteccionStepper> {
                         ? SizedBox(
                             height: 300.0,
                             width: 400.0,
-                            child: Text('No image selected.'))
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.no_photography,
+                                  size: 50.0,
+                                ),
+                                Text('No image selected.'),
+                              ],
+                            ))
                         : Image(
                             image: FileImage(_file),
                           ),

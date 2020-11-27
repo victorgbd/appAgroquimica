@@ -2,7 +2,6 @@ import 'package:agroquimica/cubit/adminstates_cubit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -13,6 +12,23 @@ class LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _usertextController = TextEditingController();
   final _passwordtextController = TextEditingController();
+  void dialog(String message) {
+    showDialog(
+        context: context,
+        builder: (dialogcontext) {
+          return AlertDialog(
+            content: Text(message),
+            actions: [
+              FlatButton(
+                  onPressed: () {
+                    Navigator.of(dialogcontext).pop();
+                  },
+                  child: Text("OK"))
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,34 +106,37 @@ class LoginPageState extends State<LoginPage> {
                     if (_formKey.currentState.validate()) {
                       final user = _usertextController.text;
                       final password = _passwordtextController.text;
-                      // try {
-                      //   //await Firebase.initializeApp();
-                      //   User fuser = (await FirebaseAuth.instance
-                      //           .signInWithEmailAndPassword(
-                      //               email: user, password: password))
-                      //       .user;
-                      //   if (fuser != null) {
-                      //     Navigator.pushNamedAndRemoveUntil(
-                      //         context, '/menu', (_) => false);
-                      //   }
-                      // } on FirebaseAuthException catch (e) {
-                      //   print(e);
-                      // }
-                      bool flag = true;
-                      flag = await context
-                          .read<AdminstatesCubit>()
-                          .validateUser(user, password);
-                      if (flag) {
-                        context
-                            .read<AdminstatesCubit>()
-                            .setUser(user, password);
-                        Navigator.pushNamedAndRemoveUntil(
-                            context, '/menu', (_) => false);
-                      } else {
-                        print("vacio");
+                      try {
+                        User fuser = (await FirebaseAuth.instance
+                                .signInWithEmailAndPassword(
+                                    email: user, password: password))
+                            .user;
+                        if (fuser != null) {
+                          await context
+                              .read<AdminstatesCubit>()
+                              .setUser(user, password);
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, '/menu', (_) => false);
+                          _usertextController.clear();
+                          _passwordtextController.clear();
+                        }
+                      } on FirebaseAuthException catch (e) {
+                        if (e.code == 'user-not-found') {
+                          dialog("Usuario no existe");
+                        } else {
+                          dialog("Usuario o contraseña no son correctos");
+                        }
                       }
-                      _usertextController.clear();
-                      _passwordtextController.clear();
+                      // bool flag = true;
+                      // flag = await context
+                      //     .read<AdminstatesCubit>()
+                      //     .validateUser(user, password);
+                      // if (flag) {
+
+                      // } else {
+                      //   print("vacio");
+                      // }
+
                     }
                   },
                   padding:

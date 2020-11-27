@@ -1,9 +1,13 @@
 import 'package:agroquimica/cubit/adminstates_cubit.dart';
+import 'package:agroquimica/data/entities/usere_entities.dart';
 import 'package:agroquimica/pages/deteccion/deteccion_page.dart';
 import 'package:agroquimica/pages/recomendacion/recomendacion_page.dart';
 import 'package:agroquimica/pages/ventas/ventas_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class MenuPage extends StatelessWidget {
   @override
@@ -159,24 +163,52 @@ class UserDrawer extends StatelessWidget {
           ListTile(
               title: Text("VENTAS"),
               onTap: () {
+                Navigator.of(context).pop();
                 Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => VentasPage()));
               }),
           ListTile(
               title: Text("RECOMENDACIÓN DE PRODUCTOS"),
               onTap: () {
+                Navigator.of(context).pop();
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => RecomendacionPage()));
               }),
           ListTile(
               title: Text("DETECCIÓN DE ENFERMEDAD"),
               onTap: () {
+                Navigator.of(context).pop();
                 Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => DeteccionPage()));
               }),
           ListTile(
               title: Text("SIGN OUT"),
-              onTap: () {
+              onTap: () async {
+                final User user = _auth.currentUser;
+                if (user == null) {
+                  Scaffold.of(context).showSnackBar(const SnackBar(
+                    content: Text('No one has signed in.'),
+                  ));
+                  return;
+                }
+                await _auth.signOut();
+                context.read<AdminstatesCubit>().carrito.clear();
+                context.read<AdminstatesCubit>().totalfacturar = 0.0;
+                context.read<AdminstatesCubit>().userEEntities = UserEEntities(
+                    nombre: null,
+                    apellido: null,
+                    codcli: null,
+                    correo: null,
+                    contrasena: null,
+                    codpais: null,
+                    pais: null,
+                    codciudad: null,
+                    ciudad: null,
+                    coddir: null,
+                    direccion: null,
+                    tipo: null,
+                    numeracion: null,
+                    numerotelf: null);
                 Navigator.pushNamedAndRemoveUntil(
                     context, "/welcome", (_) => false);
               }),

@@ -1,6 +1,8 @@
 import 'package:agroquimica/cubit/adminstates_cubit.dart';
 import 'package:agroquimica/data/entities/direccion/direccion_entities.dart';
 import 'package:agroquimica/data/entities/usere_entities.dart';
+import 'package:agroquimica/pages/login/verificacion_email.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -336,11 +338,18 @@ class SignupPageState extends State<SignupPage> {
                         await context
                             .read<AdminstatesCubit>()
                             .createUser(userEntity);
-                        context
-                            .read<AdminstatesCubit>()
-                            .setUser(email, password);
-                        Navigator.pushNamedAndRemoveUntil(
-                            context, '/menu', (_) => false);
+                        try {
+                          await FirebaseAuth.instance
+                              .createUserWithEmailAndPassword(
+                                  email: email, password: password);
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => VerificacionPage(
+                                    email: email,
+                                    password: password,
+                                  )));
+                        } on FirebaseException catch (e) {
+                          print(e.code);
+                        }
                       }
                       _nombretextController.clear();
                       _emailtextController.clear();
