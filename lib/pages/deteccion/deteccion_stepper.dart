@@ -2,7 +2,8 @@ import 'dart:io';
 
 import 'package:agroquimica/cubit/adminstates_cubit.dart';
 import 'package:agroquimica/data/entities/image_entities.dart';
-import 'package:agroquimica/data/entities/productos_entities.dart';
+import 'package:agroquimica/data/entities/productos_entity.dart';
+import 'package:agroquimica/data/models/productos_model.dart';
 import 'package:agroquimica/pages/ventas/ventas_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,7 +20,7 @@ class DeteccionStepper extends StatefulWidget {
 }
 
 class DeteccionStepperState extends State<DeteccionStepper> {
-  List<ProductosEntities> recomendacion = [];
+  List<ProductosEntity> recomendacion = [];
   String codplanta = "";
   String codespecie = "";
   String codenfermedad = "";
@@ -207,6 +208,9 @@ class DeteccionStepperState extends State<DeteccionStepper> {
 
   @override
   Widget build(BuildContext context) {
+    String unidadsel = "UNIDAD";
+    double precio = 0.0;
+    int cantmax = 3;
     List<Step> steps = [
       Step(
         title: Text(""),
@@ -316,6 +320,11 @@ class DeteccionStepperState extends State<DeteccionStepper> {
                 child: ListView.builder(
                   itemCount: recomendacion.length,
                   itemBuilder: (context, index) {
+                    recomendacion[index].unidad.forEach((element) {
+                      if (element.coduni == recomendacion[index].codunidad) {
+                        cantmax = int.parse(element.cantidad);
+                      }
+                    });
                     return Column(
                       children: [
                         Dismissible(
@@ -347,60 +356,90 @@ class DeteccionStepperState extends State<DeteccionStepper> {
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(recomendacion[index].cantidadven == null
-                                    ? recomendacion[index].cantidadven = "1"
-                                    : recomendacion[index].cantidadven),
+                                Text(recomendacion[index].cantven == null
+                                    ? recomendacion[index].cantven = '1'
+                                    : recomendacion[index].cantven),
                                 Text("Precio: " + recomendacion[index].precio),
                               ],
                             ),
                             onTap: () {
+                              recomendacion[index].cantven = '1';
                               int cantidad =
-                                  int.parse(recomendacion[index].cantidadven);
+                                  int.parse(recomendacion[index].cantven);
+
                               showDialog(
                                 context: context,
                                 builder: (context) {
                                   return AlertDialog(
-                                      content: SingleChildScrollView(
-                                        child: Column(
-                                          children: [
-                                            FadeInImage(
-                                                height: 256.0,
-                                                width: 256.0,
-                                                placeholder: AssetImage(
-                                                    'assets/plant_icon.png'),
-                                                image: NetworkImage(
-                                                    recomendacion[index].url)),
-                                            Text(recomendacion[index]
-                                                .descripcion),
-                                            Text("Precio: " +
-                                                recomendacion[index].precio),
-                                            StatefulBuilder(
-                                              builder: (context, setState) {
-                                                return Counter(
-                                                    initialValue: cantidad,
-                                                    minValue: 1,
-                                                    step: 1,
-                                                    maxValue: int.parse(
-                                                        recomendacion[index]
-                                                            .cantidad),
-                                                    onChanged: (value) {
-                                                      setState(() {
-                                                        cantidad = value;
-                                                      });
-                                                    },
-                                                    decimalPlaces: 0);
-                                              },
-                                            )
-                                          ],
-                                        ),
+                                      scrollable: true,
+                                      content: StatefulBuilder(
+                                        builder: (context, setState) {
+                                          return Column(
+                                            children: [
+                                              FadeInImage(
+                                                  height: 256.0,
+                                                  width: 256.0,
+                                                  placeholder: AssetImage(
+                                                      'assets/plant_icon.png'),
+                                                  image: NetworkImage(
+                                                      recomendacion[index]
+                                                          .url)),
+                                              Text(recomendacion[index]
+                                                  .descripcion),
+                                              DropdownButton<UnidadModel>(
+                                                hint: Text(unidadsel),
+                                                items: recomendacion[index]
+                                                    .unidad
+                                                    .map((dropdownstringitem) {
+                                                  return DropdownMenuItem<
+                                                      UnidadModel>(
+                                                    child: Text(
+                                                        dropdownstringitem
+                                                            .desunidad),
+                                                    value: dropdownstringitem,
+                                                  );
+                                                }).toList(),
+                                                onChanged: (value) async {
+                                                  setState(() {
+                                                    cantmax = int.parse(
+                                                        value.cantidad);
+                                                    precio = double.parse(
+                                                        value.precio);
+                                                    unidadsel = value.desunidad;
+                                                    recomendacion[index]
+                                                            .codunidad =
+                                                        value.coduni;
+                                                  });
+                                                },
+                                              ),
+                                              Text("Precio:$precio"),
+                                              StatefulBuilder(
+                                                builder: (context, setState) {
+                                                  return Counter(
+                                                      initialValue: cantidad,
+                                                      minValue: 1,
+                                                      step: 1,
+                                                      maxValue: cantmax,
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          cantidad = value;
+                                                        });
+                                                      },
+                                                      decimalPlaces: 0);
+                                                },
+                                              )
+                                            ],
+                                          );
+                                        },
                                       ),
                                       actions: [
                                         FlatButton(
                                             onPressed: () {
                                               setState(() {
-                                                recomendacion[index]
-                                                        .cantidadven =
+                                                recomendacion[index].cantven =
                                                     cantidad.toString();
+                                                recomendacion[index].precio =
+                                                    precio.toString();
                                               });
 
                                               Navigator.of(context).pop();
@@ -430,9 +469,7 @@ class DeteccionStepperState extends State<DeteccionStepper> {
                 if (recomendacion.isEmpty) {
                   dialog("Lista de productos vacia");
                 } else {
-                  await context
-                      .read<AdminstatesCubit>()
-                      .addcarritodet(recomendacion);
+                  context.read<AdminstatesCubit>().addcarritodet(recomendacion);
                   recomendacion.clear();
                   Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => VentasPage()));
@@ -457,9 +494,9 @@ class DeteccionStepperState extends State<DeteccionStepper> {
             codespecie.isNotEmpty &&
             codenfermedad.isNotEmpty) {
           if (_indexstep == 0) {
-            List<ProductosEntities> aux = await context
-                .read<AdminstatesCubit>()
-                .getRecomendacion('?codplanta=' +
+            //print("ua");
+            final aux = await context.read<AdminstatesCubit>().getRecomendacion(
+                '?codplanta=' +
                     codplanta +
                     '&codespecie=' +
                     codespecie +
@@ -467,7 +504,18 @@ class DeteccionStepperState extends State<DeteccionStepper> {
                     codenfermedad);
             if (aux.isNotEmpty) {
               setState(() {
-                recomendacion = aux;
+                aux.forEach((element) {
+                  recomendacion.add(ProductosEntity(
+                      codproducto: element.codproducto,
+                      descripcion: element.descripcion,
+                      codunidad: element.codunidad,
+                      unidad: element.unidad,
+                      tipoprod: element.tipoprod,
+                      destipoprod: element.destipoprod,
+                      url: element.url,
+                      cantven: "",
+                      precio: ""));
+                });
               });
             } else {
               dialog("Recomendación de productos no se encontró");
@@ -492,7 +540,7 @@ class DeteccionStepperState extends State<DeteccionStepper> {
                             _indexstep + 1 != steps.length
                                 ? goTo(_indexstep + 1)
                                 : setState(() => complete = true);
-                            List<ProductosEntities> aux = await context
+                            final aux = await context
                                 .read<AdminstatesCubit>()
                                 .getRecomendacion('?codplanta=' +
                                     codplanta +
@@ -502,7 +550,18 @@ class DeteccionStepperState extends State<DeteccionStepper> {
                                     codenfermedad);
                             if (aux.isNotEmpty) {
                               setState(() {
-                                recomendacion = aux;
+                                aux.forEach((element) {
+                                  recomendacion.add(ProductosEntity(
+                                      codproducto: element.codproducto,
+                                      descripcion: element.descripcion,
+                                      codunidad: element.codunidad,
+                                      unidad: element.unidad,
+                                      tipoprod: element.tipoprod,
+                                      destipoprod: element.destipoprod,
+                                      url: element.url,
+                                      cantven: "",
+                                      precio: ""));
+                                });
                               });
                             } else {
                               dialog(

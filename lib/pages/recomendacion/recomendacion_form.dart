@@ -1,6 +1,7 @@
 import 'package:agroquimica/cubit/adminstates_cubit.dart';
-import 'package:agroquimica/data/entities/productos_entities.dart';
+import 'package:agroquimica/data/entities/productos_entity.dart';
 import 'package:agroquimica/data/entities/recomendacion/recomendacion_entities.dart';
+import 'package:agroquimica/data/models/productos_model.dart';
 import 'package:agroquimica/pages/ventas/ventas_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,7 +25,10 @@ class RecomendacionFormState extends State<RecomendacionForm> {
   String planta = 'Planta';
   String especie = 'Especie';
   String enfermedad = 'Enfermedad';
-  List<ProductosEntities> recomendacion = [];
+  List<ProductosEntity> recomendacion = [];
+  String unidadsel = "UNIDAD";
+  double precio = 0.0;
+  int cantmax = 3;
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -99,11 +103,25 @@ class RecomendacionFormState extends State<RecomendacionForm> {
                   recomendacion.clear();
                 });
 
-                final aux = await context.read<AdminstatesCubit>().getRecomendacion(
-                    '?codplanta=$codplanta&codespecie=$codespecie&codenfermedad=$codenfermedad');
+                final List aux = await context
+                    .read<AdminstatesCubit>()
+                    .getRecomendacion(
+                        '?codplanta=$codplanta&codespecie=$codespecie&codenfermedad=$codenfermedad');
+
                 if (aux.isNotEmpty) {
                   setState(() {
-                    recomendacion = aux;
+                    aux.forEach((element) {
+                      recomendacion.add(ProductosEntity(
+                          codproducto: element.codproducto,
+                          descripcion: element.descripcion,
+                          codunidad: element.codunidad,
+                          unidad: element.unidad,
+                          tipoprod: element.tipoprod,
+                          destipoprod: element.destipoprod,
+                          url: element.url,
+                          cantven: "",
+                          precio: ""));
+                    });
                   });
                 } else {
                   showDialog(
@@ -181,59 +199,89 @@ class RecomendacionFormState extends State<RecomendacionForm> {
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(recomendacion[index].cantidadven == null
-                                    ? recomendacion[index].cantidadven = "1"
-                                    : recomendacion[index].cantidadven),
+                                Text(recomendacion[index].cantven == null
+                                    ? recomendacion[index].cantven = '1'
+                                    : recomendacion[index].cantven),
                                 Text("Precio: " + recomendacion[index].precio),
                               ],
                             ),
                             onTap: () {
+                              recomendacion[index].cantven = '1';
                               int cantidad =
-                                  int.parse(recomendacion[index].cantidadven);
+                                  int.parse(recomendacion[index].cantven);
                               showDialog(
                                 context: context,
                                 builder: (context) {
                                   return AlertDialog(
                                       content: SingleChildScrollView(
-                                        child: Column(
-                                          children: [
-                                            FadeInImage(
-                                                height: 256.0,
-                                                width: 256.0,
-                                                placeholder: AssetImage(
-                                                    'assets/plant_icon.png'),
-                                                image: NetworkImage(
-                                                    recomendacion[index].url)),
-                                            Text(recomendacion[index]
-                                                .descripcion),
-                                            Text("Precio: " +
-                                                recomendacion[index].precio),
-                                            StatefulBuilder(
-                                              builder: (context, setState) {
-                                                return Counter(
+                                        child: StatefulBuilder(
+                                          builder: (context, setState) {
+                                            return Column(
+                                              children: [
+                                                FadeInImage(
+                                                    height: 256.0,
+                                                    width: 256.0,
+                                                    placeholder: AssetImage(
+                                                        'assets/plant_icon.png'),
+                                                    image: NetworkImage(
+                                                        recomendacion[index]
+                                                            .url)),
+                                                Text(recomendacion[index]
+                                                    .descripcion),
+                                                DropdownButton<UnidadModel>(
+                                                  hint: Text(unidadsel),
+                                                  items: recomendacion[index]
+                                                      .unidad
+                                                      .map(
+                                                          (dropdownstringitem) {
+                                                    return DropdownMenuItem<
+                                                        UnidadModel>(
+                                                      child: Text(
+                                                          dropdownstringitem
+                                                              .desunidad),
+                                                      value: dropdownstringitem,
+                                                    );
+                                                  }).toList(),
+                                                  onChanged: (value) async {
+                                                    setState(() {
+                                                      cantmax = int.parse(
+                                                          value.cantidad);
+                                                      recomendacion[index]
+                                                              .precio =
+                                                          value.precio;
+                                                      unidadsel =
+                                                          value.desunidad;
+                                                      recomendacion[index]
+                                                              .codunidad =
+                                                          value.coduni;
+                                                    });
+                                                    print(value.precio);
+                                                  },
+                                                ),
+                                                Text("Precio: " +
+                                                    recomendacion[index]
+                                                        .precio),
+                                                Counter(
                                                     initialValue: cantidad,
                                                     minValue: 1,
                                                     step: 1,
-                                                    maxValue: int.parse(
-                                                        recomendacion[index]
-                                                            .cantidad),
+                                                    maxValue: cantmax,
                                                     onChanged: (value) {
                                                       setState(() {
                                                         cantidad = value;
                                                       });
                                                     },
-                                                    decimalPlaces: 0);
-                                              },
-                                            )
-                                          ],
+                                                    decimalPlaces: 0)
+                                              ],
+                                            );
+                                          },
                                         ),
                                       ),
                                       actions: [
                                         FlatButton(
                                             onPressed: () {
                                               setState(() {
-                                                recomendacion[index]
-                                                        .cantidadven =
+                                                recomendacion[index].cantven =
                                                     cantidad.toString();
                                                 context
                                                     .read<AdminstatesCubit>()

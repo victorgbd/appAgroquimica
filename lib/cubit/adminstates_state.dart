@@ -51,7 +51,7 @@ class AdminstatesLoadeddir extends AdminstatesState {
 class AdminstatesloadingProd extends AdminstatesState {}
 
 class AdminstatesloadedProd extends AdminstatesState {
-  final List<ProductosEntities> productosEntities;
+  final List<ProductosEntity> productosEntities;
   AdminstatesloadedProd({this.productosEntities});
 }
 

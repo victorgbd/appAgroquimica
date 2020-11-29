@@ -1,6 +1,8 @@
 import 'package:agroquimica/cubit/adminstates_cubit.dart';
 import 'package:agroquimica/data/entities/detallefact_entities.dart';
 import 'package:agroquimica/data/entities/factura_entities.dart';
+import 'package:agroquimica/data/entities/productos_entity.dart';
+import 'package:agroquimica/data/models/productos_model.dart';
 
 import 'package:flare_flutter/flare_actor.dart';
 
@@ -19,8 +21,13 @@ class Lista extends StatefulWidget {
 
 class ListaState extends State<Lista> {
   FlareActor _actor;
+  String unidadsel = "UNIDAD";
+  double precio = 0.0;
+  int cantmax = 0;
+  List<ProductosEntity> _carrito;
   @override
   void initState() {
+    _carrito = context.read<AdminstatesCubit>().carrito;
     _actor = FlareActor(
       "assets/Success_Check.flr",
       alignment: Alignment.center,
@@ -60,7 +67,7 @@ class ListaState extends State<Lista> {
                     ),
                   ]),
               child: ListView.builder(
-                itemCount: context.watch<AdminstatesCubit>().carrito.length,
+                itemCount: _carrito.length,
                 itemBuilder: (context, index) {
                   return Column(
                     children: [
@@ -84,110 +91,107 @@ class ListaState extends State<Lista> {
                           if (direction == DismissDirection.endToStart) {
                             //llamar un metodo para eliminarlo de la tabla wishlist
                             setState(() {
-                              totalfact -= int.parse(context
-                                      .read<AdminstatesCubit>()
-                                      .carrito[index]
-                                      .cantidadven) *
-                                  double.parse(context
-                                      .read<AdminstatesCubit>()
-                                      .carrito[index]
-                                      .precio);
+                              totalfact -= int.parse(_carrito[index].cantven) *
+                                  double.parse(_carrito[index].precio);
                               context.read<AdminstatesCubit>().totalfacturar =
                                   totalfact;
-                              context
-                                  .read<AdminstatesCubit>()
-                                  .carrito
-                                  .removeAt(index);
+                              _carrito.removeAt(index);
                             });
                           }
                         },
                         key: UniqueKey(),
                         child: ListTile(
-                          title: Text(context
-                              .watch<AdminstatesCubit>()
-                              .carrito[index]
-                              .descripcion),
+                          title: Text(_carrito[index].descripcion),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(context
-                                  .watch<AdminstatesCubit>()
-                                  .carrito[index]
-                                  .cantidadven),
-                              Text("Precio: " +
-                                  context
-                                      .watch<AdminstatesCubit>()
-                                      .carrito[index]
-                                      .precio),
+                              Text(_carrito[index].cantven),
+                              Text("Precio: " + _carrito[index].precio),
                             ],
                           ),
                           onTap: () {
-                            int cantidad = int.parse(context
-                                .read<AdminstatesCubit>()
-                                .carrito[index]
-                                .cantidadven);
+                            int cantidad = int.parse(_carrito[index].cantven);
+                            _carrito[index].unidad.forEach((element) {
+                              if (element.coduni == _carrito[index].codunidad) {
+                                cantmax = int.parse(element.cantidad);
+                              }
+                            });
                             showDialog(
                               context: context,
                               builder: (context) {
-                                return StatefulBuilder(
-                                  builder: (context, setState) {
-                                    return AlertDialog(
-                                        content: SingleChildScrollView(
-                                          child: Column(
-                                            children: [
-                                              FadeInImage(
-                                                  height: 256.0,
-                                                  width: 256.0,
-                                                  placeholder: AssetImage(
-                                                      'assets/plant_icon.png'),
-                                                  image: NetworkImage(context
-                                                      .watch<AdminstatesCubit>()
-                                                      .carrito[index]
-                                                      .url)),
-                                              Text(context
-                                                  .watch<AdminstatesCubit>()
-                                                  .carrito[index]
-                                                  .descripcion),
-                                              Text("Precio: " +
-                                                  context
-                                                      .watch<AdminstatesCubit>()
-                                                      .carrito[index]
-                                                      .precio),
-                                              Counter(
-                                                  initialValue: cantidad,
-                                                  minValue: 1,
-                                                  step: 1,
-                                                  maxValue: int.parse(context
-                                                      .watch<AdminstatesCubit>()
-                                                      .carrito[index]
-                                                      .cantidad),
-                                                  onChanged: (value) {
-                                                    setState(() {
-                                                      cantidad = value;
-                                                    });
-                                                  },
-                                                  decimalPlaces: 0)
-                                            ],
-                                          ),
-                                        ),
-                                        actions: [
-                                          FlatButton(
-                                              onPressed: () {
-                                                context
-                                                    .read<AdminstatesCubit>()
-                                                    .setcantven(
-                                                        index, cantidad);
-                                                Navigator.of(context).pop();
+                                return AlertDialog(
+                                    scrollable: true,
+                                    content: StatefulBuilder(
+                                      builder: (context, setState) {
+                                        return Column(
+                                          children: [
+                                            FadeInImage(
+                                                height: 256.0,
+                                                width: 256.0,
+                                                placeholder: AssetImage(
+                                                    'assets/plant_icon.png'),
+                                                image: NetworkImage(
+                                                    _carrito[index].url)),
+                                            Text(_carrito[index].descripcion),
+                                            DropdownButton<UnidadModel>(
+                                              hint: Text(unidadsel),
+                                              items: _carrito[index]
+                                                  .unidad
+                                                  .map((dropdownstringitem) {
+                                                return DropdownMenuItem<
+                                                    UnidadModel>(
+                                                  child: Text(dropdownstringitem
+                                                      .desunidad),
+                                                  value: dropdownstringitem,
+                                                );
+                                              }).toList(),
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  cantmax =
+                                                      int.parse(value.cantidad);
+                                                  precio = double.parse(
+                                                      value.precio);
+                                                  unidadsel = value.desunidad;
+
+                                                  _carrito[index].codunidad =
+                                                      value.coduni;
+                                                  _carrito[index].precio =
+                                                      value.precio;
+                                                });
                                               },
-                                              child: Text("OK")),
-                                          FlatButton(
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                              child: Text("CANCELAR"))
-                                        ]);
-                                  },
-                                );
+                                            ),
+                                            Text("Precio: $precio"),
+                                            Counter(
+                                                initialValue: cantidad,
+                                                minValue: 1,
+                                                step: 1,
+                                                maxValue: cantmax,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    cantidad = value;
+                                                  });
+                                                },
+                                                decimalPlaces: 0)
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                    actions: [
+                                      FlatButton(
+                                          onPressed: () {
+                                            context
+                                                .read<AdminstatesCubit>()
+                                                .setcantven(index, cantidad);
+                                            Navigator.of(context).pop();
+                                            unidadsel = "UNIDAD";
+                                          },
+                                          child: Text("OK")),
+                                      FlatButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text("CANCELAR"))
+                                    ]);
                               },
                             );
                           },
@@ -268,15 +272,12 @@ class ListaState extends State<Lista> {
 
                                 List<DetallefactEntities> detalle =
                                     List<DetallefactEntities>();
-                                context
-                                    .read<AdminstatesCubit>()
-                                    .carrito
-                                    .forEach((element) {
+                                _carrito.forEach((element) {
                                   detalle.add(DetallefactEntities(
                                       numfac: numfac,
                                       codproducto:
                                           int.parse(element.codproducto),
-                                      cantvent: int.parse(element.cantidadven),
+                                      cantvent: int.parse(element.cantven),
                                       precvent: double.parse(element.precio),
                                       coduni: int.parse(element.codunidad)));
                                 });
@@ -316,15 +317,15 @@ class ListaState extends State<Lista> {
 
   double getTotal(BuildContext context) {
     double total = 0;
-    context.watch<AdminstatesCubit>().carrito.forEach((element) {
-      total += int.parse(element.cantidadven) * double.parse(element.precio);
+    _carrito.forEach((element) {
+      total += int.parse(element.cantven) * double.parse(element.precio);
     });
     return total;
   }
 
   void compraExitosa() {
     setState(() {
-      context.read<AdminstatesCubit>().carrito.clear();
+      _carrito.clear();
     });
     showDialog(
         context: context,

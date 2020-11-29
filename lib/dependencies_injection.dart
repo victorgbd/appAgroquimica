@@ -11,7 +11,6 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   sl.registerFactory(() => AdminstatesCubit(
-        carrito: [],
         facturaAdminRepository: sl(),
         userEEntities: UserEEntities(
             nombre: null,

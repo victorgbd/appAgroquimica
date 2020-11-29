@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:agroquimica/data/entities/direccion/direccion_entities.dart';
 import 'package:agroquimica/data/entities/image_entities.dart';
-import 'package:agroquimica/data/entities/productos_entities.dart';
+
 import 'package:agroquimica/data/entities/recomendacion/recomendacion_entities.dart';
 import 'package:agroquimica/data/entities/usere_entities.dart';
 import 'package:bloc/bloc.dart';
@@ -12,18 +12,17 @@ import 'package:meta/meta.dart';
 import 'package:agroquimica/data/entities/detallefact_entities.dart';
 import 'package:agroquimica/data/entities/factura_entities.dart';
 import 'package:agroquimica/data/repository/factadmin_repository.dart';
-
+import 'package:agroquimica/data/entities/productos_entity.dart';
 part 'adminstates_state.dart';
 
 class AdminstatesCubit extends Cubit<AdminstatesState> {
-  List<ProductosEntities> carrito;
+  final List<ProductosEntity> carrito = [];
   double totalfacturar = 0.0;
   UserEEntities userEEntities;
   final IFacturaAdminRepository facturaAdminRepository;
 
   AdminstatesCubit({
     this.facturaAdminRepository,
-    this.carrito,
     this.userEEntities,
   }) : super(AdminstatesInitial());
 
@@ -118,15 +117,10 @@ class AdminstatesCubit extends Cubit<AdminstatesState> {
       (failure) {
         emit(AdminstatesError(message: failure.message));
       },
-      (producto) {
-        emit(AdminstatesloadedProd(productosEntities: producto));
+      (productos) {
+        emit(AdminstatesloadedProd(productosEntities: productos));
       },
     );
-  }
-
-  void addcarrito(ProductosEntities producto) {
-    carrito.add(producto);
-    emit(Adminstatesloadedcarrito());
   }
 
   void setcantven(int index, int cantidad) {
@@ -207,8 +201,8 @@ class AdminstatesCubit extends Cubit<AdminstatesState> {
         emit(AdminstatesError(message: failure.message));
         return list;
       },
-      (direccion) {
-        list = direccion;
+      (recomendacion) {
+        list = recomendacion;
         return list;
       },
     );
@@ -224,34 +218,77 @@ class AdminstatesCubit extends Cubit<AdminstatesState> {
   }
 
   void addcarritorec(List<RecomendacionesEntities> recomendacion,
-      List<ProductosEntities> producto) {
+      List<ProductosEntity> producto) {
     var flag = true;
     producto.forEach((elementi) {
       flag = true;
       carrito.forEach((elementj) {
-        if (elementj.codproducto == elementi.codproducto) {
+        if (elementj.codproducto == elementi.codproducto &&
+            elementj.codunidad == elementi.codunidad) {
           flag = false;
         }
       });
       if (flag) {
-        carrito.add(elementi);
+        carrito.add(ProductosEntity(
+            codproducto: elementi.codproducto,
+            descripcion: elementi.descripcion,
+            codunidad: elementi.codunidad,
+            unidad: elementi.unidad,
+            tipoprod: elementi.tipoprod,
+            destipoprod: elementi.destipoprod,
+            url: elementi.url,
+            cantven: elementi.cantven,
+            precio: elementi.precio));
       }
     });
     emit(AdminstateloadedRecomendacion(recomendacionesEntites: recomendacion));
   }
 
-  Future<void> addcarritodet(List<ProductosEntities> producto) async {
+  void addcarritodet(List<ProductosEntity> producto) {
     var flag = true;
     producto.forEach((elementi) {
       flag = true;
       carrito.forEach((elementj) {
-        if (elementj.codproducto == elementi.codproducto) {
+        if (elementj.codproducto == elementi.codproducto &&
+            elementj.codunidad == elementi.codunidad) {
           flag = false;
         }
       });
       if (flag) {
-        carrito.add(elementi);
+        carrito.add(ProductosEntity(
+            codproducto: elementi.codproducto,
+            descripcion: elementi.descripcion,
+            codunidad: elementi.codunidad,
+            unidad: elementi.unidad,
+            tipoprod: elementi.tipoprod,
+            destipoprod: elementi.destipoprod,
+            url: elementi.url,
+            cantven: elementi.cantven,
+            precio: elementi.precio));
       }
     });
+  }
+
+  void addcarrito(ProductosEntity producto) {
+    var flag = true;
+    carrito.forEach((element) {
+      if (element.codproducto == producto.codproducto &&
+          element.codunidad == producto.codunidad) {
+        flag = false;
+      }
+    });
+    if (flag) {
+      carrito.add(ProductosEntity(
+          codproducto: producto.codproducto,
+          descripcion: producto.descripcion,
+          codunidad: producto.codunidad,
+          unidad: producto.unidad,
+          tipoprod: producto.tipoprod,
+          destipoprod: producto.destipoprod,
+          url: producto.url,
+          cantven: producto.cantven,
+          precio: producto.precio));
+    }
+    emit(Adminstatesloadedcarrito());
   }
 }

@@ -1,11 +1,13 @@
 import 'package:agroquimica/cubit/adminstates_cubit.dart';
-import 'package:agroquimica/data/entities/productos_entities.dart';
+import 'package:agroquimica/data/entities/productos_entity.dart';
+import 'package:agroquimica/data/models/productos_model.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_counter/flutter_counter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ProductosSearch extends SearchDelegate<ProductosEntities> {
-  final List<ProductosEntities> productos;
+class ProductosSearch extends SearchDelegate<ProductosEntity> {
+  final List<ProductosEntity> productos;
 
   ProductosSearch({@required this.productos});
   @override
@@ -35,8 +37,13 @@ class ProductosSearch extends SearchDelegate<ProductosEntities> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
+    String unidadsel = "UNIDAD";
+    String coduni = '';
     int cantidad = 1;
-    List<ProductosEntities> lista = query.isEmpty
+    double precio = 0.0;
+    int cantmax = 2;
+
+    List<ProductosEntity> lista = query.isEmpty
         ? productos
         : productos
             .where((element) => element.descripcion
@@ -56,6 +63,7 @@ class ProductosSearch extends SearchDelegate<ProductosEntities> {
                       children: [],
                     ),
                     onTap: () {
+                      ProductosEntity productossel = lista[index];
                       showDialog(
                         context: context,
                         builder: (context) {
@@ -71,15 +79,38 @@ class ProductosSearch extends SearchDelegate<ProductosEntities> {
                                             placeholder: AssetImage(
                                                 'assets/plant_icon.png'),
                                             image:
-                                                NetworkImage(lista[index].url)),
-                                        Text(lista[index].descripcion),
-                                        Text("Precio: " + lista[index].precio),
+                                                NetworkImage(productossel.url)),
+                                        DropdownButton<UnidadModel>(
+                                          hint: Text(unidadsel),
+                                          items: productossel.unidad
+                                              .map((dropdownstringitem) {
+                                            return DropdownMenuItem<
+                                                UnidadModel>(
+                                              child: Text(
+                                                  dropdownstringitem.desunidad),
+                                              value: dropdownstringitem,
+                                            );
+                                          }).toList(),
+                                          onChanged: (value) async {
+                                            setState(() {
+                                              unidadsel = value.desunidad;
+
+                                              cantmax =
+                                                  int.parse(value.cantidad);
+                                              precio =
+                                                  double.parse(value.precio);
+
+                                              coduni = value.coduni;
+                                            });
+                                          },
+                                        ),
+                                        Text(productossel.descripcion),
+                                        Text("Precio: $precio"),
                                         Counter(
                                             initialValue: cantidad,
                                             minValue: 1,
                                             step: 1,
-                                            maxValue: int.parse(
-                                                lista[index].cantidad),
+                                            maxValue: cantmax,
                                             onChanged: (value) {
                                               setState(() {
                                                 cantidad = value;
@@ -92,43 +123,39 @@ class ProductosSearch extends SearchDelegate<ProductosEntities> {
                                   actions: [
                                     FlatButton(
                                         onPressed: () {
-                                          Navigator.of(context).pop();
-                                          bool flag = true;
-
-                                          lista[index].cantidadven =
+                                          productossel.precio =
+                                              precio.toString();
+                                          productossel.codunidad = coduni;
+                                          productossel.cantven =
                                               cantidad.toString();
+                                          // bool flag = true;
+
+                                          // showDialog(
+                                          //   context: context,
+                                          //   builder: (dialogcontext) {
+                                          //     return AlertDialog(
+                                          //       content: Text(
+                                          //           "Producto ya agredado al carrito"),
+                                          //       actions: [
+                                          //         FlatButton(
+                                          //             onPressed: () {
+                                          //               Navigator.of(
+                                          //                       dialogcontext)
+                                          //                   .pop();
+                                          //             },
+                                          //             child: Text("OK"))
+                                          //       ],
+                                          //     );
+                                          //   },
+                                          // );
                                           context
                                               .read<AdminstatesCubit>()
-                                              .carrito
-                                              .forEach((element) {
-                                            if (element.codproducto ==
-                                                lista[index].codproducto) {
-                                              showDialog(
-                                                context: context,
-                                                builder: (dialogcontext) {
-                                                  return AlertDialog(
-                                                    content: Text(
-                                                        "Producto ya agredado al carrito"),
-                                                    actions: [
-                                                      FlatButton(
-                                                          onPressed: () {
-                                                            Navigator.of(
-                                                                    dialogcontext)
-                                                                .pop();
-                                                          },
-                                                          child: Text("OK"))
-                                                    ],
-                                                  );
-                                                },
-                                              );
-                                              flag = false;
-                                            }
-                                          });
-                                          if (flag) {
-                                            context
-                                                .read<AdminstatesCubit>()
-                                                .addcarrito(lista[index]);
-                                          }
+                                              .addcarrito(productossel);
+                                          print("prodselec");
+                                          print(productossel);
+                                          print("carrito");
+
+                                          Navigator.of(context).pop();
                                         },
                                         child: Text("AGREGAR")),
                                     FlatButton(

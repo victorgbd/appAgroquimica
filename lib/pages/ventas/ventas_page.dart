@@ -1,6 +1,6 @@
 import 'package:agroquimica/cubit/adminstates_cubit.dart';
+import 'package:agroquimica/data/entities/productos_entity.dart';
 
-import 'package:agroquimica/data/entities/productos_entities.dart';
 import 'package:agroquimica/pages/ventas/productos_search.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,7 +15,7 @@ class VentasPage extends StatefulWidget {
 }
 
 class VentasPageState extends State<VentasPage> {
-  List<ProductosEntities> productos = [];
+  List<ProductosEntity> productos = [];
 
   @override
   void initState() {

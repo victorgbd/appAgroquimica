@@ -5,7 +5,7 @@ class FacturaAdminRepositoryimp implements IFacturaAdminRepository {
   FacturaAdminRepositoryimp({
     @required this.httpClient,
   });
-  final _url = "https://982d17351a21.ngrok.io";
+  final _url = "https://375bc1eeee7f.ngrok.io";
 
   @override
   Future<Either<Failure, int>> createFactura(FacturaEntities factura) async {
@@ -153,7 +153,7 @@ class FacturaAdminRepositoryimp implements IFacturaAdminRepository {
   }
 
   @override
-  Future<Either<Failure, List<ProductosEntities>>> getProductos() async {
+  Future<Either<Failure, List<ProductosEntity>>> getProductos() async {
     try {
       final response = await this.httpClient.get(_url + "/productos");
 
@@ -162,9 +162,26 @@ class FacturaAdminRepositoryimp implements IFacturaAdminRepository {
             const FactAdminFailure(message: "something was wrong in getdata"));
       }
 
-      final listUser = productosModelFromJson(response.body);
-      if (listUser.isNotEmpty) {
-        return Right(listUser);
+      final listp = productosModelFromJson(response.body);
+
+      if (listp.isNotEmpty) {
+        List<ProductosEntity> listprod = [];
+
+        listp.forEach((element) {
+          // print(element);
+          listprod.add(ProductosEntity(
+              codproducto: element.codproducto,
+              descripcion: element.descripcion,
+              codunidad: element.codunidad,
+              unidad: element.unidad,
+              tipoprod: element.tipoprod,
+              destipoprod: element.destipoprod,
+              url: element.url,
+              cantven: "",
+              precio: ""));
+        });
+
+        return Right(listprod);
       } else {
         return Left(const FactAdminFailure(message: "productos vacio"));
       }
@@ -235,7 +252,7 @@ class FacturaAdminRepositoryimp implements IFacturaAdminRepository {
   }
 
   @override
-  Future<Either<Failure, List>> getRecomendacion(String query) async {
+  Future<Either<Failure, List<dynamic>>> getRecomendacion(String query) async {
     try {
       final response =
           await this.httpClient.get(_url + "/recomendacion" + query);
@@ -244,9 +261,21 @@ class FacturaAdminRepositoryimp implements IFacturaAdminRepository {
         return Left(
             const FactAdminFailure(message: "something was wrong in getdata"));
       }
-      List listrecom;
+      List listrecom = [];
       if (query.contains("&codenfermedad=")) {
-        listrecom = productosModelFromJson(response.body);
+        var aux = productosModelFromJson(response.body);
+        aux.forEach((element) {
+          listrecom.add(ProductosEntity(
+              codproducto: element.codproducto,
+              descripcion: element.descripcion,
+              codunidad: element.codunidad,
+              unidad: element.unidad,
+              tipoprod: element.tipoprod,
+              destipoprod: element.destipoprod,
+              url: element.url,
+              cantven: "",
+              precio: ""));
+        });
       } else {
         listrecom = recomendacionesModelFromJson(response.body);
       }
